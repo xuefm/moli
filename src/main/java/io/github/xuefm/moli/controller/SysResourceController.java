@@ -63,6 +63,7 @@ public class SysResourceController {
             @ApiResponse(responseCode = "200", description = "查询成功"),
             @ApiResponse(responseCode = "401", description = "未登录或 token 已失效")
     })
+    @PreAuthorize("hasAuthority('resource:select')")
     @GetMapping("/sys/sysResource/getStepByStep")
     public Results<List<SysResourceVO>> getStepByStep(@Valid @ModelAttribute GetStepByStepRequest getStepByStepRequest) {
         return sysResourceService.getStepByStep(getStepByStepRequest);

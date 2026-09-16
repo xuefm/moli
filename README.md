@@ -2,35 +2,38 @@
 
 后台管理系统的后端服务。基于 Spring Boot 4 + Java 21，提供账号、角色、资源（权限点）的 RBAC 管理，配套前端项目为 `moli-web`。
 
----
+***
 
 ## 技术栈
 
-| 组件 | 版本 / 说明 |
-| --- | --- |
-| Spring Boot | 4.1.1（Spring Framework 7） |
-| JDK | 21 |
-| MyBatis-Plus | 3.5.15（`mybatis-plus-spring-boot4-starter`） |
-| Spring Security | 随 Boot 版本，JWT 无状态鉴权 |
-| JJWT | 0.11.5 |
-| MySQL | 8.x（`mysql-connector-j`） |
-| Redis | 存登录态 |
-| Hutool | 5.8.9 |
-| Knife4j | 4.5.0（OpenAPI 3 文档 UI） |
-| Lombok / Freemarker | 编译期 / MP 代码生成器依赖 |
+| 组件                  | 版本 / 说明                                     |
+| ------------------- | ------------------------------------------- |
+| Spring Boot         | 4.1.1（Spring Framework 7）                   |
+| JDK                 | 21                                          |
+| MyBatis-Plus        | 3.5.15（`mybatis-plus-spring-boot4-starter`） |
+| Spring Security     | 随 Boot 版本，JWT 无状态鉴权                         |
+| JJWT                | 0.11.5                                      |
+| MySQL               | 8.x（`mysql-connector-j`）                    |
+| Redis               | 存登录态                                        |
+| Hutool              | 5.8.9                                       |
+| Knife4j             | 4.5.0（OpenAPI 3 文档 UI）                      |
+| Lombok / Freemarker | 编译期 / MP 代码生成器依赖                            |
 
 > 注意：本项目用的是 **Jackson 3**（Boot 4 默认），不是 Jackson 2，行为差异见文末「注意事项」。
 
----
+***
 
 ## 环境要求
 
-- JDK 21+
-- Maven 3.6+
-- MySQL 8（当前配置指向 `192.168.200.101:3306`）
-- Redis（当前配置指向 `192.168.200.101:6379`）
+* JDK 21+
 
----
+* Maven 3.6+
+
+* MySQL 8（当前配置指向 `192.168.200.101:3306`）
+
+* Redis（当前配置指向 `192.168.200.101:6379`）
+
+***
 
 ## 快速开始
 
@@ -82,26 +85,26 @@ mvn clean package -DskipTests && java -jar target/moli-0.0.1-SNAPSHOT.jar
 
 服务默认端口 **8080**，无 context-path。
 
-| 地址 | 说明 |
-| --- | --- |
-| <http://localhost:8080/doc.html> | Knife4j 接口文档 UI |
+| 地址                                  | 说明                |
+| ----------------------------------- | ----------------- |
+| <http://localhost:8080/doc.html>    | Knife4j 接口文档 UI   |
 | <http://localhost:8080/v3/api-docs> | OpenAPI 3 原始 JSON |
 
----
+***
 
 ## 初始账号
 
-| 登录名 | 密码 |
-| --- | --- |
+| 登录名     | 密码                                  |
+| ------- | ----------------------------------- |
 | `admin` | 见 `sql/moli.sql`（BCrypt 哈希存储，未记录明文） |
 
 初始账号关联 `admin` 角色，拥有 `account:*`、`role:*`、`resource:*` 的查询/新增/修改权限。
 
-**忘记密码时重置为 `123456`**（直接用现成的 BCrypt 哈希）：
+**忘记密码时重置为** **`123456`**（直接用现成的 BCrypt 哈希）：
 
 ```sql
 UPDATE `sys_account`
-SET `login_password` = '$2a$10$nIiKPjVBwiC4QwrRrclJJOkAQaumniYjXKVmbEpukm4k6jbU0YYVC'
+SET `login_password` = '2a2a2a10$nIiKPjVBwiC4QwrRrclJJOkAQaumniYjXKVmbEpukm4k6jbU0YYVC'
 WHERE `login_name` = 'admin';
 ```
 
@@ -115,7 +118,7 @@ echo 'System.out.println(new org.springframework.security.crypto.bcrypt.BCryptPa
 
 > `spring-security-crypto` 依赖 `spring-jcl`（提供 commons-logging），少了会报 `NoClassDefFoundError: LogFactory`。
 
----
+***
 
 ## 目录结构
 
@@ -147,67 +150,68 @@ src/main/resources/
 └─ mapper/*.xml                    手写 SQL
 ```
 
----
+***
 
 ## 数据库
 
-| 表 | 说明 |
-| --- | --- |
-| `sys_account` | 账号 |
-| `sys_role` | 角色 |
-| `sys_resource` | 资源 / 权限点（`type`：0 组（菜单）、1 接口） |
-| `sys_account_role` | 账号 ↔ 角色（多对多） |
-| `sys_role_resource` | 角色 ↔ 资源（多对多） |
+| 表                   | 说明                            |
+| ------------------- | ----------------------------- |
+| `sys_account`       | 账号                            |
+| `sys_role`          | 角色                            |
+| `sys_resource`      | 资源 / 权限点（`type`：0 组（菜单）、1 接口） |
+| `sys_account_role`  | 账号 ↔ 角色（多对多）                  |
+| `sys_role_resource` | 角色 ↔ 资源（多对多）                  |
 
-- 5 张表都有 `deleted` 字段，全局开启**逻辑删除**（`mybatis-plus.global-config.db-config.logic-delete-field: deleted`），所有 `deleteById` / 查询都会自动带上条件，**不会真删数据**。
-- 资源树靠 `superior_id` + `level` 组织：**组（type=0）可挂下级，接口（type=1）是叶子**。
+* 5 张表都有 `deleted` 字段，全局开启**逻辑删除**（`mybatis-plus.global-config.db-config.logic-delete-field: deleted`），所有 `deleteById` / 查询都会自动带上条件，**不会真删数据**。
 
----
+* 资源树靠 `superior_id` + `level` 组织：**组（type=0）可挂下级，接口（type=1）是叶子**。
+
+***
 
 ## 接口一览
 
 ### 登录模块（无需鉴权）
 
-| 方法 | 路径 | 说明 |
-| --- | --- | --- |
-| POST | `/user/login` | 登录，返回 JWT |
+| 方法   | 路径             | 说明             |
+| ---- | -------------- | -------------- |
+| POST | `/user/login`  | 登录，返回 JWT      |
 | POST | `/user/logout` | 登出，清 Redis 登录态 |
 
 ### 账号
 
-| 方法 | 路径 | 权限码 |
-| --- | --- | --- |
-| GET | `/sys/sysAccount/list` | `account:select` |
-| GET | `/sys/sysAccount/details/{id}` | `account:select` |
-| POST | `/sys/sysAccount` | `account:insert` |
-| PUT | `/sys/sysAccount` | `account:update` |
-| DELETE | `/sys/sysAccount/{id}` | `account:delete` |
+| 方法     | 路径                             | 权限码              |
+| ------ | ------------------------------ | ---------------- |
+| GET    | `/sys/sysAccount/list`         | `account:select` |
+| GET    | `/sys/sysAccount/details/{id}` | `account:select` |
+| POST   | `/sys/sysAccount`              | `account:insert` |
+| PUT    | `/sys/sysAccount`              | `account:update` |
+| DELETE | `/sys/sysAccount/{id}`         | `account:delete` |
 
 ### 角色
 
-| 方法 | 路径 | 权限码 |
-| --- | --- | --- |
-| GET | `/sys/sysRole/list` | `role:select` |
-| GET | `/sys/sysRole/all` | `role:select` |
-| POST | `/sys/sysRole` | `role:insert` |
-| PUT | `/sys/sysRole` | `role:update` |
+| 方法     | 路径                  | 权限码           |
+| ------ | ------------------- | ------------- |
+| GET    | `/sys/sysRole/list` | `role:select` |
+| GET    | `/sys/sysRole/all`  | `role:select` |
+| POST   | `/sys/sysRole`      | `role:insert` |
+| PUT    | `/sys/sysRole`      | `role:update` |
 | DELETE | `/sys/sysRole/{id}` | `role:delete` |
 
 ### 资源
 
-| 方法 | 路径 | 权限码 |
-| --- | --- | --- |
-| GET | `/sys/sysResource/list` | `resource:select` |
-| GET | `/sys/sysResource/treeAll` | `resource:select` |
-| GET | `/sys/sysResource/getStepByStep` | 无（暂未加权限注解） |
-| GET | `/sys/sysResource/byRoleId/{id}` | `resource:select` |
-| POST | `/sys/sysResource` | `resource:insert` |
-| PUT | `/sys/sysResource` | `resource:update` |
-| DELETE | `/sys/sysResource/{id}` | `resource:delete` |
+| 方法     | 路径                               | 权限码               |
+| ------ | -------------------------------- | ----------------- |
+| GET    | `/sys/sysResource/list`          | `resource:select` |
+| GET    | `/sys/sysResource/treeAll`       | `resource:select` |
+| GET    | `/sys/sysResource/getStepByStep` | `resource:select` |
+| GET    | `/sys/sysResource/byRoleId/{id}` | `resource:select` |
+| POST   | `/sys/sysResource`               | `resource:insert` |
+| PUT    | `/sys/sysResource`               | `resource:update` |
+| DELETE | `/sys/sysResource/{id}`          | `resource:delete` |
 
 三个 delete 权限点（`account:delete` / `role:delete` / `resource:delete`）是后加的，老库需要执行 `sql/add-delete-permission.sql` 才有，否则返回 403。
 
----
+***
 
 ## 鉴权与权限模型
 
@@ -224,17 +228,21 @@ src/main/resources/
 Authorization: eyJhbGciOiJIUzI1NiJ9...
 ```
 
-**值是裸 token，不要加 `Bearer ` 前缀**——`JwtUtil.verification` 直接按 JWT 解析。
+**值是裸 token，不要加** **`Bearer `** **前缀**——`JwtUtil.verification` 直接按 JWT 解析。
 
 ### 权限判断
 
-- Controller 方法上用 `@PreAuthorize("hasAuthority('xxx:yyy')")`
-- 权限码来自 `sys_resource.code`，形如 `account:select`、`role:delete`
-- 关系是：账号 → 角色 → 资源，一个账号可以有多个角色，权限取并集
-- 白名单（无需登录）：`/user/login`、`/public/**`、`/doc.html`、`/swagger-ui.html`、`/swagger-resources/**`、`/webjars/**`、`/v3/api-docs/**`、`/api/**`
-- Session 策略 `STATELESS`，CSRF 关闭，CORS 全开
+* Controller 方法上用 `@PreAuthorize("hasAuthority('xxx:yyy')")`
 
----
+* 权限码来自 `sys_resource.code`，形如 `account:select`、`role:delete`
+
+* 关系是：账号 → 角色 → 资源，一个账号可以有多个角色，权限取并集
+
+* 白名单（无需登录）：`/user/login`、`/public/**`、`/doc.html`、`/swagger-ui.html`、`/swagger-resources/**`、`/webjars/**`、`/v3/api-docs/**`、`/api/**`
+
+* Session 策略 `STATELESS`，CSRF 关闭，CORS 全开
+
+***
 
 ## 统一响应
 
@@ -244,28 +252,33 @@ Authorization: eyJhbGciOiJIUzI1NiJ9...
 { "status": 200, "message": "请求成功", "data": {} }
 ```
 
-| status | 含义 |
-| --- | --- |
-| `200` | 成功 |
-| `9999` | 业务失败（`BusinessException`） |
-| `403` | 已登录但没权限（`AccessDeniedException`） |
+| status | 含义                               |
+| ------ | -------------------------------- |
+| `200`  | 成功                               |
+| `9999` | 业务失败（`BusinessException`）        |
+| `403`  | 已登录但没权限（`AccessDeniedException`） |
 
 `message` 为 `null` 时不序列化。参数校验失败时 `data` 是 `{ 字段名: 错误原因 }`。
 
 分页统一用 `PageData<T>`（`current` / `size` / `total` / `list` / `totalPages`）。
 
----
+***
 
 ## 已内置的机制
 
-- **逻辑删除**：全局配置，5 张表统一用 `deleted` 字段
-- **自动填充**：`MyMetaObjectHandler` 自动写 `createTime` / `updateTime` / `createById` / `updateById`（当前创建人硬编码为 `root`）
-- **分页 + 乐观锁**：`MybatisPlusConfig` 注册了 `PaginationInnerInterceptor` 和 `OptimisticLockerInnerInterceptor`
-- **全局异常处理**：`GlobalExceptionHandler` 捕获业务异常、参数校验异常、`AccessDeniedException` 等
-- **AOP**：`WebLogAspect` 请求日志、`RepeatSubmitAspect` + `@RepeatSubmit` 防重复提交
-- **JWT 过滤**：`JWTAuthenticateFilter` 在 `UsernamePasswordAuthenticationFilter` 之前执行
+* **逻辑删除**：全局配置，5 张表统一用 `deleted` 字段
 
----
+* **自动填充**：`MyMetaObjectHandler` 自动写 `createTime` / `updateTime` / `createById` / `updateById`（当前创建人硬编码为 `root`）
+
+* **分页 + 乐观锁**：`MybatisPlusConfig` 注册了 `PaginationInnerInterceptor` 和 `OptimisticLockerInnerInterceptor`
+
+* **全局异常处理**：`GlobalExceptionHandler` 捕获业务异常、参数校验异常、`AccessDeniedException` 等
+
+* **AOP**：`WebLogAspect` 请求日志、`RepeatSubmitAspect` + `@RepeatSubmit` 防重复提交
+
+* **JWT 过滤**：`JWTAuthenticateFilter` 在 `UsernamePasswordAuthenticationFilter` 之前执行
+
+***
 
 ## 注意事项
 
@@ -286,8 +299,9 @@ spring:
 
 ### 2. 401 / 403 返回的 HTTP 状态码还是 200
 
-- `AuthenticationEntryPointImpl` 用 `HttpStatus.OK`，返回 HTTP 200 + `{"status":9999,"message":"认证失败"}`
-- `GlobalExceptionHandler.accessDeniedExceptionHandler` 没加 `@ResponseStatus`，返回 HTTP 200 + `{"status":403,"message":"拒绝访问"}`
+* `AuthenticationEntryPointImpl` 用 `HttpStatus.OK`，返回 HTTP 200 + `{"status":9999,"message":"认证失败"}`
+
+* `GlobalExceptionHandler.accessDeniedExceptionHandler` 没加 `@ResponseStatus`，返回 HTTP 200 + `{"status":403,"message":"拒绝访问"}`
 
 HTTP 语义不正确，前端只能靠 body 里的 `status` 或 `message` 文案判断。建议改成：
 
@@ -304,18 +318,23 @@ HTTP 语义不正确，前端只能靠 body 里的 `status` 或 `message` 文案
 
 ### 4. 生产环境前要改的东西
 
-- `jwt.secret` 当前硬编码在 `application.yml`，必须换成随机值并走环境变量
-- 数据库 / Redis 密码明文写在配置文件里
-- CORS 现在是 `allowedOrigins("*")` 全开
-- `spring-boot-starter-aop` 显式指定了 `4.0.0-M2`（里程碑版），与 Boot 4.1.1 混用，建议去掉版本号让 Boot 统一管理
-- MyBatis-Plus 开启了 `log-impl: StdOutImpl`，会打印全部 SQL，生产建议关掉
+* `jwt.secret` 当前硬编码在 `application.yml`，必须换成随机值并走环境变量
+
+* 数据库 / Redis 密码明文写在配置文件里
+
+* CORS 现在是 `allowedOrigins("*")` 全开
+
+* `spring-boot-starter-aop` 显式指定了 `4.0.0-M2`（里程碑版），与 Boot 4.1.1 混用，建议去掉版本号让 Boot 统一管理
+
+* MyBatis-Plus 开启了 `log-impl: StdOutImpl`，会打印全部 SQL，生产建议关掉
 
 ### 5. 未启用的部分
 
-- `MinIoConfig` 的 `@Configuration` 已注释，MinIO 依赖在但未生效，`application.yml` 里也没有 minio 配置段；`data/file/UploadVO`、`GetUrlRequest` 是预留的文件上传模型，暂无对应接口。
-- `aop/annotation/RepeatSubmit` 防重注解已定义，需要自己在方法上使用。
+* `MinIoConfig` 的 `@Configuration` 已注释，MinIO 依赖在但未生效，`application.yml` 里也没有 minio 配置段；`data/file/UploadVO`、`GetUrlRequest` 是预留的文件上传模型，暂无对应接口。
 
----
+* `aop/annotation/RepeatSubmit` 防重注解已定义，需要自己在方法上使用。
+
+***
 
 ## 配套前端
 
