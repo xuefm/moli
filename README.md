@@ -203,8 +203,6 @@ src/main/resources/
 | PUT    | `/sys/sysResource`               | `resource:update` |
 | DELETE | `/sys/sysResource/{id}`          | `resource:delete` |
 
-三个 delete 权限点（`account:delete` / `role:delete` / `resource:delete`）是后加的，老库需要执行 `sql/add-delete-permission.sql` 才有，否则返回 403。
-
 ***
 
 ## 鉴权与权限模型
