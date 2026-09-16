@@ -46,12 +46,6 @@ mysql -u root -p moli < sql/moli.sql
 
 `sql/moli.sql` 包含 5 张表的结构和一批初始数据（admin 账号、admin 角色、菜单与权限点）。
 
-如果库已经建过，只是要补「删除」权限，执行：
-
-```bash
-mysql -u root -p moli < sql/add-delete-permission.sql
-```
-
 ### 2. 修改配置
 
 `src/main/resources/application.yml`：
