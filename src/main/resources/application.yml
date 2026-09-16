@@ -1,0 +1,58 @@
+server:
+  port: 8080
+spring:
+  application:
+    name: moli
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://192.168.200.101:3306/moli?zeroDateTimeBehavior=convertToNull&useUnicode=true&characterEncoding=UTF-8&autoReconnect=true
+    username: root
+    password: expect
+  data:
+    redis:
+      port: 6379
+      host: 192.168.200.101
+      password: expect
+      database: 0
+  jackson:
+    date-format: yyyy-MM-dd HH:mm:ss
+    time-zone: GMT+8
+    mapper:
+      # Jackson 3 起 SORT_PROPERTIES_ALPHABETICALLY 默认为 true，会导致响应字段按 a-z 排序
+      # 这里关掉，恢复成 Java 类里的字段声明顺序
+      sort-properties-alphabetically: false
+jwt:
+  secret: mySecretKeyForJwtTokenGenerationMustBeLongEnough1234567890
+  expiration: 604800000 #Token有效期（毫秒），默认7天
+  refresh-expiration: 2592000000 #刷新Token有效期（毫秒），默认30天
+
+mybatis-plus:
+  mapper-locations: classpath*:/mapper/**Mapper.xml
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+  global-config:
+    db-config:
+      logic-delete-field: deleted  # 全局逻辑删除的实体字段名(since 3.3.0,配置后可以忽略不配置步骤2)
+      logic-delete-value: 1 # 逻辑已删除值(默认为 1)
+      logic-not-delete-value: 0 # 逻辑未删除值(默认为 0)
+
+
+# springdoc-openapi项目配置
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+    tags-sorter: alpha
+    operations-sorter: alpha
+  api-docs:
+    path: /v3/api-docs
+  group-configs:
+    - group: 'default'
+      paths-to-match:
+       - '/**'
+      packages-to-scan:
+       - io.github.xuefm.moli.controller
+# knife4j的增强配置，不需要增强可以不配
+knife4j:
+  enable: true
+  setting:
+    language: zh_cn

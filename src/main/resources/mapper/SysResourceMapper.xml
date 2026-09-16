@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="io.github.xuefm.moli.mapper.SysResourceMapper">
+    <select id="getCodeByAccountId" resultType="java.lang.String">
+        select distinct e.code
+        from sys_account a
+                 inner join sys_account_role b on b.account_id = a.id
+                 inner join sys_role c on c.id = b.role_id
+                 inner join sys_role_resource d on d.role_id = c.id
+                 inner join sys_resource e on e.id = d.resource_id
+        where a.id = #{accountId,jdbcType=VARCHAR}
+
+          and a.deleted = 0
+          and b.deleted = 0
+          and c.deleted = 0
+          and d.deleted = 0
+          and e.deleted = 0
+
+          and c.enabled = 1
+          and e.enabled = 1
+    </select>
+
+    <select id="getResourceIdListByRoleId" resultType="java.lang.String">
+        select b.id
+        from sys_role_resource a
+                 join sys_resource b on a.resource_id = b.id
+        where a.role_id = #{roleId}
+          and b.enabled = 1
+    </select>
+</mapper>
